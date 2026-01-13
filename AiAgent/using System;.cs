@@ -1,6 +1,6 @@
 using System;
 
-class Program
+class ConsoleProgram
 {
     static void Main()
     {
@@ -10,7 +10,8 @@ class Program
     static void PlayGame()
     {
         Console.WriteLine("Valitse kivi, paperi tai sakset:");
-        string playerChoice = Console.ReadLine().ToLower();
+        string? input = Console.ReadLine();
+        string playerChoice = (input ?? string.Empty).ToLowerInvariant();
         string aiChoice = GetAIChoice();
         
         Console.WriteLine($"Tekoäly valitsi: {aiChoice}");
