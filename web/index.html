@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RockPaperScissors with AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>RockPaperScissors with AI</h1>
+
+
+        <div class="choices">
+            <button id="rock">Rock</button>
+            <button id="paper">Paper</button>
+            <button id="scissors">Scissors</button>
+        </div>
+
+        <div class="result" id="result"></div>
+
+        <div class="stats">
+            <h3>Statistics</h3>
+            <p>Total Games: <span id="totalGames">0</span></p>
+            <p>Player Wins: <span id="playerWins">0</span></p>
+            <p>AI Wins: <span id="aiWins">0</span></p>
+            <p>Ties: <span id="ties">0</span></p>
+        </div>
+
+        <div class="history">
+            <h3>Recent Moves</h3>
+            <ul id="historyList"></ul>
+        </div>
+
+        <button id="resetStats">Reset Statistics</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
