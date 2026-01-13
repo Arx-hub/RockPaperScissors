@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rock Paper Scissors</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="title">
+      <h1>Rock Paper Scissors</h1>
+    </header>
+
+    <section class="game-area">
+      <div class="choices" id="choices">
+        <button class="choice-btn" data-choice="rock" aria-label="Rock">
+          <img src="assets/rock.svg" alt="Rock">
+        </button>
+        <button class="choice-btn" data-choice="paper" aria-label="Paper">
+          <img src="assets/paper.svg" alt="Paper">
+        </button>
+        <button class="choice-btn" data-choice="scissors" aria-label="Scissors">
+          <img src="assets/scissors.svg" alt="Scissors">
+        </button>
+      </div>
+
+      <div class="result-panel hidden" id="resultPanel">
+        <div class="result-banner" id="resultBanner">You Win!</div>
+        <div class="vs-row">
+          <div class="col">
+            <div class="label">Bot</div>
+            <div class="choice-display" id="botChoice"></div>
+          </div>
+          <div class="vs">VS</div>
+          <div class="col">
+            <div class="label">You</div>
+            <div class="choice-display" id="playerChoice"></div>
+          </div>
+        </div>
+        <button class="btn try-again" id="tryAgain">Try Again</button>
+      </div>
+    </section>
+
+  </main>
+  <script src="js/game.js" defer></script>
+</body>
+</html>
