@@ -1,0 +1,15 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:KiviPaperiSakset"
+        x:Class="KiviPaperiSakset.MainWindow"
+        Title="KiviPaperiSakset"
+        Width="800"
+        Height="600"
+        Background="#2c3e50">
+    <Design.PreviewWith>
+        <Window Width="800" Height="600" />
+    </Design.PreviewWith>
+    
+    <ContentControl Content="{Binding CurrentViewModel}" 
+                    ContentTemplate="{StaticResource ViewLocator}"/>
+</Window>
