@@ -8,18 +8,25 @@
 </head>
 <body>
     <div class="container">
-        <h1>RockPaperScissors with AI</h1>
-
-
-        <div class="choices">
-            <button id="rock">Rock</button>
-            <button id="paper">Paper</button>
-            <button id="scissors">Scissors</button>
+        <select id="difficulty">
+            <option value="easy">Easy (Rock, Paper, Scissors)</option>
+            <option value="hard">Hard (with Lizard & Spock)</option>
+        </select>
+        <button id="toggleTheme">Light Theme</button>
+        <div class="choice-display">
+            <div id="playerChoice">Your choice: </div>
+            <div id="aiChoice">AI choice: </div>
         </div>
 
         <div class="result" id="result"></div>
 
-        <div class="stats">
+        <div class="choices">
+            <button id="rock">Rock ✊</button>
+            <button id="paper">Paper ✋</button>
+            <button id="scissors">Scissors ✌️</button>
+            <button id="lizard" class="hard-only">Lizard 🦎</button>
+            <button id="spock" class="hard-only">Spock 🖖</button>
+        </div>
             <h3>Statistics</h3>
             <p>Total Games: <span id="totalGames">0</span></p>
             <p>Player Wins: <span id="playerWins">0</span></p>
@@ -27,12 +34,14 @@
             <p>Ties: <span id="ties">0</span></p>
         </div>
 
+        </div>
+
+        <button id="resetStats">Reset Statistics</button>
+
         <div class="history">
             <h3>Recent Moves</h3>
             <ul id="historyList"></ul>
         </div>
-
-        <button id="resetStats">Reset Statistics</button>
     </div>
 
     <script src="script.js"></script>

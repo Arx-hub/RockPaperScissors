@@ -1,63 +1,169 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    background-color: #000011;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     margin: 0;
+    color: #ffffff;
+}
+
+body.light-theme {
+    background-color: #FFFFF0 !important;
+    color: #333333 !important;
 }
 
 .container {
-    background-color: white;
+    background-color: #001122;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     text-align: center;
     max-width: 500px;
     width: 100%;
+    position: relative;
+}
+
+body.light-theme .container {
+    background-color: #ffffff !important;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1) !important;
 }
 
 h1 {
-    color: #333;
+    color: #00FFAA;
+}
+
+body.light-theme h1 {
+    color: #333333 !important;
 }
 
 .stats {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .stats p {
-    margin: 5px 0;
+    margin: 3px 0;
     font-weight: bold;
+    color: #AACCAA;
+    font-size: 14px;
+}
+
+body.light-theme .stats p {
+    color: #333333 !important;
+}
+
+.choice-display {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.choice-display div {
+    padding: 20px;
+    background-color: #001122;
+    color: white;
+    border-radius: 5px;
+    min-width: 200px;
+    text-align: center;
+    font-size: 24px;
+}
+
+body.light-theme .choice-display div {
+    background-color: #4CAF50 !important;
+    color: white !important;
 }
 
 .choices {
     margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 button {
-    background-color: #4CAF50;
+    background-color: #002244;
     color: white;
     border: none;
-    padding: 10px 20px;
-    margin: 0 5px;
+    padding: 8px 12px;
+    margin: 0 3px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
     transition: background-color 0.3s;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+body.light-theme button {
+    background-color: #4CAF50 !important;
+    color: white !important;
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #003355;
 }
 
-#resetStats {
-    background-color: #f44336;
-    margin-top: 20px;
+body.light-theme button:hover {
+    background-color: #45a049 !important;
 }
 
-#resetStats:hover {
-    background-color: #da190b;
+#toggleTheme {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    font-size: 12px;
+    background-color: #002244;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+body.light-theme #toggleTheme {
+    background-color: #4CAF50 !important;
+    color: white !important;
+}
+
+#toggleTheme:hover {
+    background-color: #003355;
+}
+
+body.light-theme #toggleTheme:hover {
+    background-color: #45a049 !important;
+}
+
+#difficulty {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 5px;
+    font-size: 12px;
+    background-color: #002244;
+    color: white;
+    border: none;
+    border-radius: 3px;
+}
+
+body.light-theme #difficulty {
+    background-color: #4CAF50 !important;
+    color: white !important;
+}
+
+.hard-only {
+    visibility: hidden;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
 }
 
 .result {
@@ -68,6 +174,35 @@ button:hover {
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #ffffff;
+    transition: color 0.3s;
+}
+
+.result.player {
+    color: #00FF00;
+    animation: pulse 0.6s ease-in-out;
+}
+
+.result.ai {
+    color: #FF0000;
+    animation: pulse 0.6s ease-in-out;
+}
+
+.result.tie {
+    color: #0000FF;
+    animation: pulse 0.6s ease-in-out;
+}
+
+body.light-theme .result.player {
+    color: #00AA00 !important;
+}
+
+body.light-theme .result.ai {
+    color: #AA0000 !important;
+}
+
+body.light-theme .result.tie {
+    color: #0000AA !important;
 }
 
 .history {
@@ -78,4 +213,10 @@ button:hover {
 .history ul {
     list-style-type: none;
     padding: 0;
+    color: #AACCAA;
+    font-size: 12px;
+}
+
+body.light-theme .history ul {
+    color: #333333 !important;
 }

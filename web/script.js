@@ -3,6 +3,11 @@
 // AI Module
 const aiStats = loadMoveStats();
 
+// Global variables
+let stats;
+let history;
+let isPlaying = false;
+
 function recordMove(move) {
     if (aiStats.hasOwnProperty(move)) {
         aiStats[move]++;
@@ -10,27 +15,28 @@ function recordMove(move) {
 }
 
 function getAIMove() {
-    const totalMoves = aiStats.rock + aiStats.paper + aiStats.scissors;
+    const difficulty = localStorage.getItem('difficulty') || 'easy';
+    const moves = difficulty === 'hard' ? ['rock', 'paper', 'scissors', 'lizard', 'spock'] : ['rock', 'paper', 'scissors'];
+    const totalMoves = moves.reduce((sum, move) => sum + aiStats[move], 0);
     if (totalMoves < 3) {
-        const moves = ['rock', 'paper', 'scissors'];
         return moves[Math.floor(Math.random() * moves.length)];
     }
 
     let mostUsed = 'rock';
     let maxCount = aiStats.rock;
-    if (aiStats.paper > maxCount) {
-        mostUsed = 'paper';
-        maxCount = aiStats.paper;
-    }
-    if (aiStats.scissors > maxCount) {
-        mostUsed = 'scissors';
-        maxCount = aiStats.scissors;
+    for (const move of moves) {
+        if (aiStats[move] > maxCount) {
+            mostUsed = move;
+            maxCount = aiStats[move];
+        }
     }
 
     const counterMoves = {
         rock: 'paper',
         paper: 'scissors',
-        scissors: 'rock'
+        scissors: 'rock',
+        lizard: 'scissors', // lizard loses to scissors
+        spock: 'paper' // spock loses to paper
     };
     return counterMoves[mostUsed];
 }
@@ -39,19 +45,20 @@ function getAIMove() {
 function determineWinner(playerMove, aiMove) {
     if (playerMove === aiMove) return 'tie';
     const winConditions = {
-        rock: 'scissors',
-        paper: 'rock',
-        scissors: 'paper'
+        rock: ['scissors', 'lizard'],
+        paper: ['rock', 'spock'],
+        scissors: ['paper', 'lizard'],
+        lizard: ['spock', 'paper'],
+        spock: ['scissors', 'rock']
     };
-    return winConditions[playerMove] === aiMove ? 'player' : 'ai';
+    return winConditions[playerMove].includes(aiMove) ? 'player' : 'ai';
 }
 
 function getResultMessage(result, playerMove, aiMove) {
-    const moves = { rock: 'Rock', paper: 'Paper', scissors: 'Scissors' };
     switch (result) {
-        case 'tie': return `It's a tie! Both chose ${moves[playerMove]}.`;
-        case 'player': return `You win! ${moves[playerMove]} beats ${moves[aiMove]}.`;
-        case 'ai': return `AI wins! ${moves[aiMove]} beats ${moves[playerMove]}.`;
+        case 'tie': return `It's a tie!`;
+        case 'player': return `You won!`;
+        case 'ai': return `Not this time`;
         default: return 'Unknown result.';
     }
 }
@@ -72,7 +79,9 @@ function loadMoveStats() {
     return {
         rock: parsed.rock || 0,
         paper: parsed.paper || 0,
-        scissors: parsed.scissors || 0
+        scissors: parsed.scissors || 0,
+        lizard: parsed.lizard || 0,
+        spock: parsed.spock || 0
     };
 }
 
@@ -100,7 +109,7 @@ function saveHistory(history) {
 function updateHistoryDisplay(history) {
     const historyList = document.getElementById('historyList');
     historyList.innerHTML = '';
-    history.slice(-5).forEach(item => { // Show last 5
+    history.slice(-3).forEach(item => { // Show last 3
         const li = document.createElement('li');
         li.textContent = `You: ${item.player} | AI: ${item.ai} | Result: ${item.result}`;
         historyList.appendChild(li);
@@ -108,11 +117,11 @@ function updateHistoryDisplay(history) {
 }
 
 // Main Game Logic
-let stats = loadStats();
-let history = loadHistory();
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Rock Paper Scissors script loaded successfully');
+    stats = loadStats();
+    history = loadHistory();
     updateStatsDisplay(stats);
     updateHistoryDisplay(history);
 
@@ -124,7 +133,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function playRound(playerMove) {
-    console.log('Playing round with:', playerMove);
+    if (isPlaying) return;
+    isPlaying = true;
+    console.log('playRound called with:', playerMove);
     const aiMove = getAIMove();
     const result = determineWinner(playerMove, aiMove);
     const message = getResultMessage(result, playerMove, aiMove);
@@ -143,13 +154,25 @@ function playRound(playerMove) {
     saveHistory(history);
 
     // Update UI
+    const moves = { 
+        rock: 'Rock ✊', 
+        paper: 'Paper ✋', 
+        scissors: 'Scissors ✌️',
+        lizard: 'Lizard 🦎',
+        spock: 'Spock 🖖'
+    };
+    document.getElementById('playerChoice').textContent = `Your choice: ${moves[playerMove]}`;
+    document.getElementById('aiChoice').textContent = `AI choice: ${moves[aiMove]}`;
     document.getElementById('result').textContent = message;
+    document.getElementById('result').className = `result ${result}`;
     updateStatsDisplay(stats);
     updateHistoryDisplay(history);
 
     // Record move for AI
     recordMove(playerMove);
     saveMoveStats(aiStats);
+
+    isPlaying = false;
 }
 
 function resetStats() {
@@ -158,12 +181,82 @@ function resetStats() {
         aiStats.rock = 0;
         aiStats.paper = 0;
         aiStats.scissors = 0;
+        aiStats.lizard = 0;
+        aiStats.spock = 0;
         history = [];
         saveStats(stats);
         saveMoveStats(aiStats);
         saveHistory(history);
         updateStatsDisplay(stats);
         updateHistoryDisplay(history);
+        document.getElementById('playerChoice').textContent = 'Your choice: ';
+        document.getElementById('aiChoice').textContent = 'AI choice: ';
         document.getElementById('result').textContent = 'Statistics reset!';
     }
 }
+
+function updateDifficultyUI(difficulty) {
+    const hardButtons = document.querySelectorAll('.hard-only');
+    hardButtons.forEach(btn => {
+        btn.style.visibility = difficulty === 'hard' ? 'visible' : 'hidden';
+    });
+}
+
+function changeDifficulty() {
+    const select = document.getElementById('difficulty');
+    const difficulty = select.value;
+    localStorage.setItem('difficulty', difficulty);
+    updateDifficultyUI(difficulty);
+    console.log('Difficulty changed to:', difficulty);
+}
+
+function updateThemeButtonText(isLight) {
+    const button = document.getElementById('toggleTheme');
+    button.textContent = isLight ? 'Dark' : 'Light';
+}
+
+// Theme Toggle
+function toggleTheme() {
+    console.log('Toggle theme clicked');
+    const body = document.body;
+    const wasLight = body.classList.contains('light-theme');
+    body.classList.toggle('light-theme');
+    const isLight = body.classList.contains('light-theme');
+    console.log('Theme toggled from', wasLight ? 'light' : 'dark', 'to', isLight ? 'light' : 'dark');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    updateThemeButtonText(isLight);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Rock Paper Scissors script loaded successfully');
+    stats = loadStats();
+    history = loadHistory();
+    updateStatsDisplay(stats);
+    updateHistoryDisplay(history);
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        console.log('Loaded light theme from localStorage');
+        updateThemeButtonText(true);
+    } else {
+        console.log('Loaded dark theme from localStorage');
+        updateThemeButtonText(false);
+    }
+
+    // Load saved difficulty
+    const savedDifficulty = localStorage.getItem('difficulty') || 'easy';
+    document.getElementById('difficulty').value = savedDifficulty;
+    updateDifficultyUI(savedDifficulty);
+
+    // Button event listeners
+    document.getElementById('rock').addEventListener('click', (e) => { e.preventDefault(); console.log('rock clicked'); playRound('rock'); });
+    document.getElementById('paper').addEventListener('click', (e) => { e.preventDefault(); console.log('paper clicked'); playRound('paper'); });
+    document.getElementById('scissors').addEventListener('click', (e) => { e.preventDefault(); console.log('scissors clicked'); playRound('scissors'); });
+    document.getElementById('lizard').addEventListener('click', (e) => { e.preventDefault(); console.log('lizard clicked'); playRound('lizard'); });
+    document.getElementById('spock').addEventListener('click', (e) => { e.preventDefault(); console.log('spock clicked'); playRound('spock'); });
+    document.getElementById('resetStats').addEventListener('click', resetStats);
+    document.getElementById('toggleTheme').addEventListener('click', toggleTheme);
+    document.getElementById('difficulty').addEventListener('change', changeDifficulty);
+});
