@@ -1,51 +1,157 @@
-# Kivi-paperi-sakset
+# documentation for an AI agent
 
-Yksinkertainen kivi-paperi-sakset -peli, joka on toteutettu C#-backendillä (minimal API) ja kevyellä HTML/JavaScript-frontendilla.
+## Kivi–Paperi–Sakset vs AI
 
-Ominaisuudet
-- Pelaaja valitsee `kivi`, `paperi` tai `sakset` käyttöliittymästä.
-- Backend arpoo tekoälyn valinnan ja palauttaa pelin tuloksen.
-- Frontend näyttää tekoälyn valinnan ja tuloksen.
+Selainkäyttöinen kivi-paperi-sakset -peli, jossa pelataan tekoälyä vastaan. Peli on toteutettu C#:lla käyttäen ASP.NET Core:a ja moderneja web-tekniikoita.
 
-Esivaatimukset
-- Asennettuna .NET SDK (versio 8.0+ suositeltu). Tarkista: `dotnet --info`
+### Ominaisuudet
 
-Käynnistys
-1. Avaa komentorivi tai PowerShell.
-2. Siirry projektiin:
-```powershell
-cd "c:\Users\User\OneDrive\Tiedostot\Omat koodit\AiAgent"
-```
+- **Pelin perustoiminnot:**
+  - Pelaaja valitsee kiven (✊), paperin (✋) tai sakset (✌️)
+  - AI vastaa omalla valinnallaan
+  - Tulos näytetään heti valinnan jälkeen
+
+- **Pisteiden seuranta:**
+  - Kierrosten kokonaismäärä
+  - Pelaajan voitot
+  - AI:n voitot
+  - Tasapelit
+  - Reset-nappi kaikkien lukujen nollaamiseen
+
+- **Vaikeustasot:**
+  - **Helppo (Normal):** AI toistaa edellisen siirtoaan 60% todennäköisyydellä, mikä tekee siitä ennakoitavaa
+  - **Vaikea (Hard):** AI käyttää pelaajan siirtohistoriaa ja valitsee vastahyökkäyksen pelaajan yleisimmän siirron perusteella
+
+- **Teema-vaihtelu:**
+  - **Vaaleanpunainen teema** (oletuksena)
+  - **Tummansininen teema**
+  - Teema-vaihto-nappi vasemmassa yläkulmassa
+
+### Esitietovaatimukset
+
+- **.NET 8.0 SDK** tai uudempi. Tarkista: `dotnet --version`
+- Selain, joka tukee HTML5:tä ja JavaScriptiä
+
+### Käynnistys
+
+1. Avaa PowerShell tai komentorivi
+2. Siirry projektin juurikansioon:
+   ```powershell
+   cd "c:\Users\User\OneDrive\Tiedostot\Omat koodit\RockPaperScissors\AiAgent"
+   ```
 3. Käynnistä sovellus:
+   ```powershell
+   dotnet run
+   ```
+4. Avaa selaimessa osoite joka näkyy konsolissa (yleensä `https://localhost:5001` tai `http://localhost:5000`)
+
+### Pelin logiikka
+
+#### Voittokriteerit
+
+- **Kivi** voittaa **sakset**
+- **Sakset** voittaa **paperin**
+- **Paperi** voittaa **kiven**
+- Sama valinta = **tasapeli**
+
+#### Vaikeusastot yksityiskohtaisesti
+
+**Helppo (Normal):**
+- Ensimmäisellä kierroksella AI valitsee satunnaisesti
+- Seuraavilla kierroksilla AI toistaa edellisen siirtojaan 60% todennäköisyydellä
+- 40% todennäköisyydellä valitsee jonkin muun siirron
+- Tuloksena AI on ennustettava
+
+**Vaikea (Hard):**
+- AI seuraa pelaajan siirtohistoriaa
+- Laskee kuinka monta kertaa pelaaja on valinnut kiven, paperia ja saksia
+- Oletuksena pelaaja toistaa yleisintä siirtojaan
+- AI valitsee siirron, joka voittaa tämän ennustetun siirron
+- Tasatilanteissa AI valitsee satunnaisesti
+
+### Projektin rakenne
+
+```
+AiAgent/
+├── Program.cs              # API-päätypisteen määritys ja sovelluksen käynnistys
+├── AiAgent.csproj          # Projektitiedosto
+├── Game/
+│   ├── GameState.cs        # Pelin tilanteen hallinta (pisteet, vaikeustaso, teema)
+│   └── GameLogic.cs        # Pelimekaaniikan logiikka (voittajien määritys, AI-algoritmit)
+├── wwwroot/
+│   ├── index.html          # Pelin käyttöliittymä
+│   ├── app.js              # Frontendin JavaScript-logiikka
+│   └── site.css            # Tyylit ja teema-määrittelyt
+└── README.md               # Tämä tiedosto
+```
+
+### API-päätypisteeet
+
+- **POST `/game/play`** — Pelaa kierrosta
+  - Pyyntö: `{ "playerChoice": "Rock" }` (Rock, Paper, Scissors)
+  - Vastaus: `{ "playerChoice": "Rock", "aiChoice": "Scissors", "result": "Win", "totalRounds": 1, "playerWins": 1, "aiWins": 0, "draws": 0 }`
+
+- **POST `/game/reset`** — Nollaa pelin
+  - Vastaus: `{ "totalRounds": 0, "playerWins": 0, "aiWins": 0, "draws": 0 }`
+
+- **POST `/game/difficulty`** — Aseta vaikeustaso
+  - Pyyntö: `{ "difficulty": "Normal" }` (Normal, Hard)
+  - Vastaus: `{ "difficulty": "Normal" }`
+
+- **POST `/game/theme`** — Aseta teema
+  - Pyyntö: `{ "theme": "Pink" }` (Pink, Blue)
+  - Vastaus: `{ "theme": "Pink" }`
+
+- **GET `/game/state`** — Hae nykyinen pelin tila
+  - Vastaus: `{ "totalRounds": 0, "playerWins": 0, "aiWins": 0, "draws": 0, "difficulty": "Normal", "theme": "Pink" }`
+
+### Testaus komentoriviltä
+
 ```powershell
-dotnet run
+# Pelaa kierrosta
+Invoke-WebRequest -Uri "http://localhost:5000/game/play" -Method Post `
+  -Headers @{"Content-Type"="application/json"} `
+  -Body '{"playerChoice":"Rock"}' | Select-Object -ExpandProperty Content
+
+# Nollaa peli
+Invoke-WebRequest -Uri "http://localhost:5000/game/reset" -Method Post `
+  -Headers @{"Content-Type"="application/json"} | Select-Object -ExpandProperty Content
+
+# Aseta vaikeustaso
+Invoke-WebRequest -Uri "http://localhost:5000/game/difficulty" -Method Post `
+  -Headers @{"Content-Type"="application/json"} `
+  -Body '{"difficulty":"Hard"}' | Select-Object -ExpandProperty Content
 ```
-4. Avaa selain osoitteeseen `http://localhost:5000/` (portti näkyy konsolissa jos eri).
 
-Testaus komentoriviltä
-```bash
-curl -X POST http://localhost:5000/play -H "Content-Type: application/json" -d "{\"playerChoice\":\"kivi\"}"
-```
+### Tekijätiedot
 
-Pelitiedostot
-- `Program.cs` — backend ja pelilogiikka
-- `AiAgent.csproj` — projektitiedosto
-- `wwwroot/index.html` — yksinkertainen käyttöliittymä
-- `wwwroot/app.js` — frontendin JavaScript
-- `README.md` — tämä tiedosto
+Toteutettu C# ja ASP.NET Corella modernilla web-arkkitehtuurilla, jossa pelilogiikka on erillään käyttöliittymästä.
 
-Kuinka peli toimii lyhyesti
-- Frontend lähettää POST-pyynnön `/play`-päätepisteeseen JSONilla: `{ "playerChoice": "kivi" }`.
-- Backend arpoo `aiChoice` ja vertailee valintoja funktiolla `DetermineWinner`.
-- Backend vastaa JSONilla: `{ "aiChoice": "paperi", "result": "Hävisit!" }`.
+### Tulevaisuuden laajennukset
 
-Vianmääritys
-- Jos `dotnet run` antaa virheen target-frameworkista, avaa `AiAgent.csproj` ja varmista `TargetFramework` vastaamaan asennettua .NET-versiota, tai asenna tarvittava SDK.
-- Jos selain ei löydä sivua, varmista että palvelin on käynnissä ja jotain portissa kuunnellaan (konsoli ilmoittaa URLin).
+Koodissa on jätetty paikat seuraavien lisäominaisuuksien toteutukselle:
 
-Seuraavat kehitysaskelmat (valinnainen)
-- Lisää pelin tilastot (voitot/tappiot)
-- Lisää monikierros-tila
-- Paranna käyttöliittymää ja tyyliä
+- **Animaatiot** — Painikkeiden hover-efektit ja siirtymäanimaatiot
+- **Äänitehosteet** — Napsautus-, voitto- ja häviöäänien lisääminen
+- **Pelin historiatiedot** — Edellisten kierrosten tiedot
+
+### Vianmääritys
+
+- **"Virhe: yhteydessä palvelimeen"**
+  - Varmista että palvelin on käynnissä (`dotnet run` -komennolla)
+  - Tarkista että käytät oikeaa porttia (konsolissa näkyvä URL)
+
+- **"Failed to load game state"**
+  - Päivitä sivu (F5)
+  - Tarkista selaimen konsooli (F12) virheilmoitusten varalta
+
+- **Portin virhe**
+  - Avaa toinen PowerShell-ikkuna
+  - Listaa portit käytössä: `netstat -ano | findstr :5000` (Windows)
+  - Tarvittaessa käynnistä uudelleen
+
+### Lisenssi
+
+Vapaa käyttö ja muokkaaminen.
 
 Jos haluat, teen seuraavaksi jonkin yllä olevista lisäyksistä.
