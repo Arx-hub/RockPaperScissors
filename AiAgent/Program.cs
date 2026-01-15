@@ -55,8 +55,8 @@ app.MapPost("/game/play", (GameRequest req, GameState state, GameLogic logic) =>
         else if (result == RoundResult.Draw)
             state.Draws++;
 
-        return Results.Json(new 
-        { 
+        return Results.Json(new
+        {
             playerChoice = playerChoice.ToString(),
             aiChoice = aiChoice.ToString(),
             result = result.ToString(),
@@ -82,8 +82,15 @@ app.MapPost("/game/play", (GameRequest req, GameState state, GameLogic logic) =>
         else if (result == RoundResult.Draw)
             state.Draws++;
 
-        return Results.Json(new 
-        { 
+        // Ensure match-specific counters are not affected
+        state.CurrentMatchRound = 0;
+        state.MatchPlayerWins = 0;
+        state.MatchAiWins = 0;
+        state.MatchDraws = 0;
+        state.MatchRoundResults.Clear();
+
+        return Results.Json(new
+        {
             playerChoice = playerChoice.ToString(),
             aiChoice = aiChoice.ToString(),
             result = result.ToString(),
@@ -104,13 +111,15 @@ app.MapPost("/game/reset", (GameState state) =>
 {
     state.Reset();
     state.ResetMatch();
-    return Results.Json(new 
-    { 
+    state.CurrentMode = GameMode.Normal; // Ensure mode resets to normal
+    return Results.Json(new
+    {
         totalRounds = 0,
         playerWins = 0,
         aiWins = 0,
         draws = 0,
-        matchComplete = false
+        matchComplete = false,
+        mode = "normal"
     });
 });
 
@@ -122,8 +131,8 @@ app.MapPost("/game/match/start", (GameState state) =>
 {
     state.CurrentMode = GameMode.Match;
     state.ResetMatch();
-    return Results.Json(new 
-    { 
+    return Results.Json(new
+    {
         mode = "match",
         matchStarted = true,
         matchRound = 0
@@ -136,25 +145,25 @@ app.MapPost("/game/match/start", (GameState state) =>
 /// </summary>
 app.MapPost("/game/match/end", (GameState state) =>
 {
-    var matchWinner = state.MatchPlayerWins >= 3 ? "player" : 
+    var matchWinner = state.MatchPlayerWins >= 3 ? "player" :
                       state.MatchAiWins >= 3 ? "ai" : "none";
-    
-    var response = new 
-    { 
+
+    var response = new
+    {
         matchComplete = true,
         winner = matchWinner,
         matchPlayerWins = state.MatchPlayerWins,
         matchAiWins = state.MatchAiWins,
         matchDraws = state.MatchDraws,
-        rounds = state.MatchRoundResults.Select(r => new 
-        { 
+        rounds = state.MatchRoundResults.Select(r => new
+        {
             result = r.result.ToString(),
             playerChoice = r.playerChoice.ToString(),
             aiChoice = r.aiChoice.ToString()
         })
     };
 
-    state.CurrentMode = GameMode.Normal;
+    state.CurrentMode = GameMode.Normal; // Reset mode to normal after match
     return Results.Json(response);
 });
 
@@ -165,8 +174,8 @@ app.MapPost("/game/match/end", (GameState state) =>
 app.MapPost("/game/vote/player", (GameState state) =>
 {
     state.PlayerVotes++;
-    return Results.Json(new 
-    { 
+    return Results.Json(new
+    {
         playerVotes = state.PlayerVotes,
         aiVotes = state.AiVotes
     });
@@ -179,8 +188,8 @@ app.MapPost("/game/vote/player", (GameState state) =>
 app.MapPost("/game/vote/ai", (GameState state) =>
 {
     state.AiVotes++;
-    return Results.Json(new 
-    { 
+    return Results.Json(new
+    {
         playerVotes = state.PlayerVotes,
         aiVotes = state.AiVotes
     });
@@ -194,8 +203,8 @@ app.MapPost("/game/vote/reset", (GameState state) =>
 {
     state.PlayerVotes = 0;
     state.AiVotes = 0;
-    return Results.Json(new 
-    { 
+    return Results.Json(new
+    {
         playerVotes = 0,
         aiVotes = 0
     });
@@ -233,8 +242,8 @@ app.MapPost("/game/theme", (ThemeRequest req, GameState state) =>
 /// </summary>
 app.MapGet("/game/state", (GameState state) =>
 {
-    return Results.Json(new 
-    { 
+    return Results.Json(new
+    {
         mode = state.CurrentMode.ToString(),
         totalRounds = state.TotalRounds,
         playerWins = state.PlayerWins,
