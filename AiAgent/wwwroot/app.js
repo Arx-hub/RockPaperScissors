@@ -10,9 +10,98 @@ const CHOICE_EMOJI = {
     'Scissors': '✌️'
 };
 
+/**
+ * Simple sound effects using Web Audio API
+ * Creates beep sounds without needing audio files
+ */
+const SoundEffects = {
+    audioContext: null,
+
+    init() {
+        if (!this.audioContext) {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    },
+
+    playWinSound() {
+        this.init();
+        const ctx = this.audioContext;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        // Win sound: ascending notes
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+        osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+        osc.start(now);
+        osc.stop(now + 0.3);
+    },
+
+    playLoseSound() {
+        this.init();
+        const ctx = this.audioContext;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        // Lose sound: descending notes
+        osc.frequency.setValueAtTime(783.99, now); // G5
+        osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+        osc.frequency.setValueAtTime(523.25, now + 0.2); // C5
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+        osc.start(now);
+        osc.stop(now + 0.3);
+    },
+
+    playDrawSound() {
+        this.init();
+        const ctx = this.audioContext;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        // Draw sound: held note
+        osc.frequency.setValueAtTime(659.25, now); // E5
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+        osc.start(now);
+        osc.stop(now + 0.2);
+    },
+
+    playClickSound() {
+        this.init();
+        const ctx = this.audioContext;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        // Click sound: short beep
+        osc.frequency.setValueAtTime(1000, now);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+
+        osc.start(now);
+        osc.stop(now + 0.05);
+    }
+};
+
 // Initialize game on page load
 document.addEventListener('DOMContentLoaded', () => {
-    document.body.innerHTML = '<h1>DEBUG: DOMContentLoaded fired!</h1>' + document.body.innerHTML;
     initializeGame();
 });
 
@@ -35,9 +124,6 @@ function initializeGame() {
  * Setup all event listeners for buttons
  */
 function setupEventListeners() {
-    const debugMsg = 'setupEventListeners called';
-    console.log(debugMsg);
-    
     // Choice buttons
     document.querySelectorAll('.choice-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -54,21 +140,40 @@ function setupEventListeners() {
         });
     });
 
+    // Game mode buttons
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const mode = btn.getAttribute('data-mode');
+            await setGameMode(mode);
+        });
+    });
+
     // Theme toggle button
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
-    const found = themeToggleBtn ? 'YES' : 'NO';
-    console.log('Looking for theme-toggle-btn, found: ' + found);
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', toggleTheme);
-        console.log('Theme button listener attached');
-    } else {
-        console.error('theme-toggle-btn not found!');
     }
 
     // Reset button
     const resetBtn = document.getElementById('reset-btn');
     if (resetBtn) {
         resetBtn.addEventListener('click', resetGame);
+    }
+
+    // Match end buttons
+    const endMatchBtn = document.getElementById('end-match-btn');
+    if (endMatchBtn) {
+        endMatchBtn.addEventListener('click', endMatch);
+    }
+
+    // Voting buttons
+    const votePlayerBtn = document.getElementById('vote-player-btn');
+    const voteAiBtn = document.getElementById('vote-ai-btn');
+    if (votePlayerBtn) {
+        votePlayerBtn.addEventListener('click', voteForPlayer);
+    }
+    if (voteAiBtn) {
+        voteAiBtn.addEventListener('click', voteForAi);
     }
 }
 
@@ -83,8 +188,196 @@ async function loadGameState() {
         const state = await response.json();
         updateScoreboard(state);
         updateDifficultyUI(state.difficulty);
+        updateGameModeUI(state.mode);
+        updateMatchUI(state);
+        updateVotingUI(state);
     } catch (error) {
         console.error('Error loading game state:', error);
+    }
+}
+
+/**
+ * Set the game mode (Normal or Match)
+ */
+async function setGameMode(mode) {
+    if (mode === 'match') {
+        try {
+            const response = await fetch('/game/match/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!response.ok) throw new Error('Failed to start match');
+
+            const result = await response.json();
+            updateGameModeUI('match');
+            enableChoiceButtons();
+            loadGameState();
+        } catch (error) {
+            console.error('Error starting match:', error);
+        }
+    } else {
+        // Switch to normal mode
+        try {
+            const response = await fetch('/game/reset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!response.ok) throw new Error('Failed to reset game');
+
+            updateGameModeUI('normal');
+            enableChoiceButtons();
+            loadGameState();
+        } catch (error) {
+            console.error('Error switching to normal mode:', error);
+        }
+    }
+}
+
+/**
+ * Update the game mode UI
+ */
+function updateGameModeUI(mode) {
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-mode') === mode) {
+            btn.classList.add('active');
+        }
+    });
+
+    const matchSection = document.getElementById('match-section');
+    if (mode === 'match' && matchSection) {
+        matchSection.style.display = 'block';
+    } else if (matchSection) {
+        matchSection.style.display = 'none';
+    }
+}
+
+/**
+ * Update match-specific UI
+ */
+function updateMatchUI(state) {
+    if (state.mode !== 'match') return;
+
+    const matchRoundEl = document.getElementById('match-round');
+    const matchPlayerWinsEl = document.getElementById('match-player-wins');
+    const matchAiWinsEl = document.getElementById('match-ai-wins');
+    const matchStatusEl = document.getElementById('match-status');
+    const endMatchBtn = document.getElementById('end-match-btn');
+
+    if (matchRoundEl) matchRoundEl.textContent = state.matchRound || 0;
+    if (matchPlayerWinsEl) matchPlayerWinsEl.textContent = state.matchPlayerWins || 0;
+    if (matchAiWinsEl) matchAiWinsEl.textContent = state.matchAiWins || 0;
+
+    if (state.matchComplete) {
+        if (matchStatusEl) {
+            if (state.matchPlayerWins >= 3) {
+                matchStatusEl.textContent = '✨ Sinä voitit matsin! ✨';
+                matchStatusEl.className = 'match-status match-win';
+            } else if (state.matchAiWins >= 3) {
+                matchStatusEl.textContent = '🤖 AI voitti matsin! 🤖';
+                matchStatusEl.className = 'match-status match-lose';
+            } else {
+                matchStatusEl.textContent = '🏁 Matsi päättyi! 🏁';
+                matchStatusEl.className = 'match-status match-draw';
+            }
+        }
+        if (endMatchBtn) {
+            endMatchBtn.style.display = 'block';
+        }
+        // Disable choice buttons when match is complete
+        disableChoiceButtons();
+    } else {
+        if (matchStatusEl) {
+            matchStatusEl.textContent = `Kierros ${state.matchRound}/5`;
+            matchStatusEl.className = 'match-status';
+        }
+        if (endMatchBtn) {
+            endMatchBtn.style.display = 'none';
+        }
+        // Enable choice buttons during match
+        enableChoiceButtons();
+    }
+}
+
+/**
+ * End the current match
+ */
+async function endMatch() {
+    try {
+        const response = await fetch('/game/match/end', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) throw new Error('Failed to end match');
+
+        const result = await response.json();
+        
+        // Reset voting when match ends
+        await fetch('/game/vote/reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        updateGameModeUI('normal');
+        loadGameState();
+        clearPlayerSelection();
+        document.getElementById('result-section').style.display = 'none';
+    } catch (error) {
+        console.error('Error ending match:', error);
+    }
+}
+
+/**
+ * Update voting UI
+ */
+function updateVotingUI(state) {
+    const playerVotesEl = document.getElementById('player-votes');
+    const aiVotesEl = document.getElementById('ai-votes');
+
+    if (playerVotesEl) playerVotesEl.textContent = state.playerVotes || 0;
+    if (aiVotesEl) aiVotesEl.textContent = state.aiVotes || 0;
+}
+
+/**
+ * Vote for player winning the match
+ */
+async function voteForPlayer() {
+    SoundEffects.playClickSound();
+    try {
+        const response = await fetch('/game/vote/player', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) throw new Error('Failed to vote for player');
+
+        const result = await response.json();
+        updateVotingUI(result);
+    } catch (error) {
+        console.error('Error voting for player:', error);
+    }
+}
+
+/**
+ * Vote for AI winning the match
+ */
+async function voteForAi() {
+    SoundEffects.playClickSound();
+    try {
+        const response = await fetch('/game/vote/ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) throw new Error('Failed to vote for AI');
+
+        const result = await response.json();
+        updateVotingUI(result);
+    } catch (error) {
+        console.error('Error voting for AI:', error);
     }
 }
 
@@ -93,6 +386,9 @@ async function loadGameState() {
  * @param {string} choice - The player's choice (Rock, Paper, or Scissors)
  */
 async function playRound(choice) {
+    // Play click sound
+    SoundEffects.playClickSound();
+
     // Clear any previous selection
     clearPlayerSelection();
 
@@ -117,8 +413,22 @@ async function playRound(choice) {
         // Display the result
         displayResult(result);
 
+        // Play sound based on result
+        if (result.result === 'Win') {
+            SoundEffects.playWinSound();
+        } else if (result.result === 'Lose') {
+            SoundEffects.playLoseSound();
+        } else if (result.result === 'Draw') {
+            SoundEffects.playDrawSound();
+        }
+
         // Update scoreboard
         updateScoreboard(result);
+
+        // Update match UI if in match mode
+        if (result.mode === 'match') {
+            updateMatchUI(result);
+        }
 
         // Clear selection after a delay
         setTimeout(() => clearPlayerSelection(), 2000);
@@ -126,6 +436,28 @@ async function playRound(choice) {
         console.error('Error playing round:', error);
         displayError('Virhe: yhteydessä palvelimeen');
     }
+}
+
+/**
+ * Disable choice buttons during match completion
+ */
+function disableChoiceButtons() {
+    document.querySelectorAll('.choice-btn').forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+    });
+}
+
+/**
+ * Enable choice buttons during match
+ */
+function enableChoiceButtons() {
+    document.querySelectorAll('.choice-btn').forEach(btn => {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+    });
 }
 
 /**
@@ -155,6 +487,11 @@ function displayResult(result) {
     } else if (result.result === 'Draw') {
         resultText = '🤝 Tasapeli!';
         resultClass = 'result-draw';
+    }
+
+    // Add match round info if in match mode
+    if (result.mode === 'match') {
+        resultText += ` (Kierros ${result.matchRound}/5)`;
     }
 
     resultMessageEl.textContent = resultText;
@@ -225,6 +562,7 @@ async function setDifficulty(difficulty) {
  * Reset the game to initial state
  */
 async function resetGame() {
+    SoundEffects.playClickSound();
     try {
         const response = await fetch('/game/reset', {
             method: 'POST',
@@ -236,9 +574,18 @@ async function resetGame() {
         const result = await response.json();
         updateScoreboard(result);
         clearPlayerSelection();
+        enableChoiceButtons();
 
         // Hide result section
         document.getElementById('result-section').style.display = 'none';
+
+        // Reset voting
+        await fetch('/game/vote/reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        loadGameState();
     } catch (error) {
         console.error('Error resetting game:', error);
     }
@@ -248,11 +595,9 @@ async function resetGame() {
  * Toggle between pink and blue themes
  */
 function toggleTheme() {
-    console.log('toggleTheme called!');
     const body = document.body;
     const currentTheme = body.classList.contains('theme-blue') ? 'blue' : 'pink';
     const newTheme = currentTheme === 'blue' ? 'pink' : 'blue';
-    console.log('Switching from', currentTheme, 'to', newTheme);
 
     setTheme(newTheme);
 
@@ -304,26 +649,3 @@ function clearPlayerSelection() {
         btn.classList.remove('active');
     });
 }
-
-// Theme toggle and initialization
-function toggleTheme(){
-  const body = document.body;
-  const current = body.getAttribute('data-theme') || 'light';
-  const next = current === 'dark' ? 'light' : 'dark';
-  body.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
-  updateThemeButton(next);
-}
-
-function updateThemeButton(theme){
-  const btn = document.getElementById('theme-toggle');
-  if(!btn) return;
-  btn.textContent = theme === 'dark' ? '☀️' : '🌙';
-}
-
-// Apply saved theme on load
-document.addEventListener('DOMContentLoaded', ()=>{
-  const saved = localStorage.getItem('theme') || 'light';
-  document.body.setAttribute('data-theme', saved);
-  updateThemeButton(saved);
-});

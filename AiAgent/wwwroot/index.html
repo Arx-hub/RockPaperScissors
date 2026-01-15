@@ -18,6 +18,19 @@
 
     <!-- Main Container -->
     <div class="container">
+        <!-- Game Mode Selector -->
+        <section class="section mode-section">
+            <label class="section-label">Pelimoodi:</label>
+            <div class="mode-toggle">
+                <button class="mode-btn active" data-mode="normal" id="btn-normal-mode">
+                    Normaali
+                </button>
+                <button class="mode-btn" data-mode="match" id="btn-match-mode">
+                    Matsi (Best of 5)
+                </button>
+            </div>
+        </section>
+
         <!-- Difficulty Selector -->
         <section class="section difficulty-section">
             <label class="section-label">Vaikeusaste:</label>
@@ -29,6 +42,27 @@
                     Vaikea
                 </button>
             </div>
+        </section>
+
+        <!-- Match Section (Hidden by default) -->
+        <section class="section match-section" id="match-section" style="display: none;">
+            <label class="section-label">Matsin tilanne:</label>
+            <div class="match-info">
+                <div class="match-status" id="match-status">Kierros 0/5</div>
+                <div class="match-scores">
+                    <div class="match-score-item">
+                        <span class="match-score-label">Sinun voittosi:</span>
+                        <span class="match-score-value" id="match-player-wins">0</span>
+                    </div>
+                    <div class="match-score-item">
+                        <span class="match-score-label">AI voittoja:</span>
+                        <span class="match-score-value" id="match-ai-wins">0</span>
+                    </div>
+                </div>
+            </div>
+            <button id="end-match-btn" class="end-match-btn" style="display: none;">
+                Lopeta matsi
+            </button>
         </section>
 
         <!-- Game Controls -->
@@ -65,6 +99,19 @@
             </div>
             <div class="result-message" id="result-message">
                 <!-- Result text inserted here -->
+            </div>
+        </section>
+
+        <!-- Voting Section -->
+        <section class="section voting-section">
+            <label class="section-label">Äänestys - Kuka voittaa matsin?</label>
+            <div class="voting-buttons">
+                <button id="vote-player-btn" class="vote-btn vote-player">
+                    👤 Sinä<br><span id="player-votes">0</span> ääntä
+                </button>
+                <button id="vote-ai-btn" class="vote-btn vote-ai">
+                    🤖 AI<br><span id="ai-votes">0</span> ääntä
+                </button>
             </div>
         </section>
 

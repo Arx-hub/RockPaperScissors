@@ -82,6 +82,42 @@ body.theme-pink .difficulty-btn.active {
     border-color: #ff1493;
 }
 
+body.theme-pink .mode-btn {
+    background: #fff;
+    color: #d91e63;
+    border: 2px solid #ffb6c1;
+}
+
+body.theme-pink .mode-btn:hover {
+    background: #ffe0ec;
+    border-color: #ff69b4;
+}
+
+body.theme-pink .mode-btn.active {
+    background: #ff69b4;
+    color: #fff;
+    border-color: #ff1493;
+}
+
+body.theme-pink .vote-btn {
+    background: #fff;
+    color: #d91e63;
+    border: 2px solid #ffb6c1;
+}
+
+body.theme-pink .vote-btn:hover {
+    background: #ffe0ec;
+    border-color: #ff69b4;
+}
+
+body.theme-pink .vote-player {
+    border-color: #ff69b4;
+}
+
+body.theme-pink .vote-ai {
+    border-color: #ff69b4;
+}
+
 body.theme-pink .theme-toggle-btn {
     background: #ff69b4;
     color: #fff;
@@ -177,6 +213,42 @@ body.theme-blue .difficulty-btn.active {
     background: #42a5f5;
     color: #0d47a1;
     border-color: #1e88e5;
+}
+
+body.theme-blue .mode-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #64b5f6;
+    border: 2px solid #42a5f5;
+}
+
+body.theme-blue .mode-btn:hover {
+    background: rgba(66, 165, 245, 0.2);
+    border-color: #64b5f6;
+}
+
+body.theme-blue .mode-btn.active {
+    background: #42a5f5;
+    color: #0d47a1;
+    border-color: #1e88e5;
+}
+
+body.theme-blue .vote-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #64b5f6;
+    border: 2px solid #42a5f5;
+}
+
+body.theme-blue .vote-btn:hover {
+    background: rgba(66, 165, 245, 0.2);
+    border-color: #64b5f6;
+}
+
+body.theme-blue .vote-player {
+    border-color: #66bb6a;
+}
+
+body.theme-blue .vote-ai {
+    border-color: #42a5f5;
 }
 
 body.theme-blue .theme-toggle-btn {
@@ -299,6 +371,155 @@ body.theme-blue .result-draw {
 .difficulty-section {
     padding-bottom: 1rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================================================
+   GAME MODE SELECTOR
+   ============================================================================ */
+
+.mode-toggle {
+    display: flex;
+    gap: 1rem;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 0.8rem 1.5rem;
+    border: 2px solid;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mode-btn:hover {
+    transform: translateY(-2px);
+}
+
+.mode-section {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================================================
+   MATCH SECTION
+   ============================================================================ */
+
+.match-section {
+    padding: 1.5rem;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.match-info {
+    margin-bottom: 1.5rem;
+}
+
+.match-status {
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.match-status.match-win {
+    background: linear-gradient(135deg, #c8e6c9 0%, #81c784 100%);
+    color: #1b5e20;
+}
+
+.match-status.match-lose {
+    background: linear-gradient(135deg, #ffcccc 0%, #ef5350 100%);
+    color: #b71c1c;
+}
+
+.match-scores {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.match-score-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 6px;
+}
+
+.match-score-label {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.match-score-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.end-match-btn {
+    width: 100%;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.end-match-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================================================
+   VOTING SECTION
+   ============================================================================ */
+
+.voting-section {
+    padding: 1.5rem;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.voting-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.vote-btn {
+    padding: 1.2rem;
+    border: 2px solid;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.vote-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.vote-btn span {
+    font-size: 1.5rem;
+    font-weight: 700;
 }
 
 /* ============================================================================
@@ -491,6 +712,14 @@ body.theme-blue .result-draw {
     .vs-text {
         transform: rotate(90deg);
         margin: 0.5rem 0;
+    }
+
+    .match-scores {
+        grid-template-columns: 1fr;
+    }
+
+    .voting-buttons {
+        grid-template-columns: 1fr;
     }
 }
 

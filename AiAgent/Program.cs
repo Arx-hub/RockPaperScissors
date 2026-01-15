@@ -15,6 +15,7 @@ app.UseStaticFiles();
 /// <summary>
 /// POST /game/play
 /// Endpoint to play a round. Accepts player choice, returns AI choice and result.
+/// Handles both normal single rounds and match mode rounds.
 /// </summary>
 app.MapPost("/game/play", (GameRequest req, GameState state, GameLogic logic) =>
 {
@@ -33,25 +34,66 @@ app.MapPost("/game/play", (GameRequest req, GameState state, GameLogic logic) =>
     state.PlayerMoveHistory.Add(playerChoice);
     state.TotalRounds++;
 
-    if (result == RoundResult.Win)
-        state.PlayerWins++;
-    else if (result == RoundResult.Lose)
-        state.AiWins++;
-    else if (result == RoundResult.Draw)
-        state.Draws++;
+    if (state.CurrentMode == GameMode.Match)
+    {
+        // Match mode: track match-specific stats
+        state.CurrentMatchRound++;
+        state.MatchRoundResults.Add((result, playerChoice, aiChoice));
 
-    var resultString = result.ToString();
+        if (result == RoundResult.Win)
+            state.MatchPlayerWins++;
+        else if (result == RoundResult.Lose)
+            state.MatchAiWins++;
+        else if (result == RoundResult.Draw)
+            state.MatchDraws++;
 
-    return Results.Json(new 
-    { 
-        playerChoice = playerChoice.ToString(),
-        aiChoice = aiChoice.ToString(),
-        result = resultString,
-        totalRounds = state.TotalRounds,
-        playerWins = state.PlayerWins,
-        aiWins = state.AiWins,
-        draws = state.Draws
-    });
+        // Also update overall stats
+        if (result == RoundResult.Win)
+            state.PlayerWins++;
+        else if (result == RoundResult.Lose)
+            state.AiWins++;
+        else if (result == RoundResult.Draw)
+            state.Draws++;
+
+        return Results.Json(new 
+        { 
+            playerChoice = playerChoice.ToString(),
+            aiChoice = aiChoice.ToString(),
+            result = result.ToString(),
+            mode = "match",
+            matchRound = state.CurrentMatchRound,
+            matchPlayerWins = state.MatchPlayerWins,
+            matchAiWins = state.MatchAiWins,
+            matchDraws = state.MatchDraws,
+            matchComplete = state.IsMatchComplete(),
+            totalRounds = state.TotalRounds,
+            playerWins = state.PlayerWins,
+            aiWins = state.AiWins,
+            draws = state.Draws
+        });
+    }
+    else
+    {
+        // Normal mode: single round play
+        if (result == RoundResult.Win)
+            state.PlayerWins++;
+        else if (result == RoundResult.Lose)
+            state.AiWins++;
+        else if (result == RoundResult.Draw)
+            state.Draws++;
+
+        return Results.Json(new 
+        { 
+            playerChoice = playerChoice.ToString(),
+            aiChoice = aiChoice.ToString(),
+            result = result.ToString(),
+            mode = "normal",
+            totalRounds = state.TotalRounds,
+            playerWins = state.PlayerWins,
+            aiWins = state.AiWins,
+            draws = state.Draws
+        });
+    }
 });
 
 /// <summary>
@@ -61,12 +103,101 @@ app.MapPost("/game/play", (GameRequest req, GameState state, GameLogic logic) =>
 app.MapPost("/game/reset", (GameState state) =>
 {
     state.Reset();
+    state.ResetMatch();
     return Results.Json(new 
     { 
         totalRounds = 0,
         playerWins = 0,
         aiWins = 0,
-        draws = 0
+        draws = 0,
+        matchComplete = false
+    });
+});
+
+/// <summary>
+/// POST /game/match/start
+/// Starts a new match (best of 5, need 3 wins to win match).
+/// </summary>
+app.MapPost("/game/match/start", (GameState state) =>
+{
+    state.CurrentMode = GameMode.Match;
+    state.ResetMatch();
+    return Results.Json(new 
+    { 
+        mode = "match",
+        matchStarted = true,
+        matchRound = 0
+    });
+});
+
+/// <summary>
+/// POST /game/match/end
+/// Ends the current match.
+/// </summary>
+app.MapPost("/game/match/end", (GameState state) =>
+{
+    var matchWinner = state.MatchPlayerWins >= 3 ? "player" : 
+                      state.MatchAiWins >= 3 ? "ai" : "none";
+    
+    var response = new 
+    { 
+        matchComplete = true,
+        winner = matchWinner,
+        matchPlayerWins = state.MatchPlayerWins,
+        matchAiWins = state.MatchAiWins,
+        matchDraws = state.MatchDraws,
+        rounds = state.MatchRoundResults.Select(r => new 
+        { 
+            result = r.result.ToString(),
+            playerChoice = r.playerChoice.ToString(),
+            aiChoice = r.aiChoice.ToString()
+        })
+    };
+
+    state.CurrentMode = GameMode.Normal;
+    return Results.Json(response);
+});
+
+/// <summary>
+/// POST /game/vote/player
+/// Vote for the player winning the match.
+/// </summary>
+app.MapPost("/game/vote/player", (GameState state) =>
+{
+    state.PlayerVotes++;
+    return Results.Json(new 
+    { 
+        playerVotes = state.PlayerVotes,
+        aiVotes = state.AiVotes
+    });
+});
+
+/// <summary>
+/// POST /game/vote/ai
+/// Vote for the AI winning the match.
+/// </summary>
+app.MapPost("/game/vote/ai", (GameState state) =>
+{
+    state.AiVotes++;
+    return Results.Json(new 
+    { 
+        playerVotes = state.PlayerVotes,
+        aiVotes = state.AiVotes
+    });
+});
+
+/// <summary>
+/// POST /game/vote/reset
+/// Reset voting counts.
+/// </summary>
+app.MapPost("/game/vote/reset", (GameState state) =>
+{
+    state.PlayerVotes = 0;
+    state.AiVotes = 0;
+    return Results.Json(new 
+    { 
+        playerVotes = 0,
+        aiVotes = 0
     });
 });
 
@@ -104,12 +235,20 @@ app.MapGet("/game/state", (GameState state) =>
 {
     return Results.Json(new 
     { 
+        mode = state.CurrentMode.ToString(),
         totalRounds = state.TotalRounds,
         playerWins = state.PlayerWins,
         aiWins = state.AiWins,
         draws = state.Draws,
+        matchRound = state.CurrentMatchRound,
+        matchPlayerWins = state.MatchPlayerWins,
+        matchAiWins = state.MatchAiWins,
+        matchDraws = state.MatchDraws,
+        matchComplete = state.IsMatchComplete(),
         difficulty = state.CurrentDifficulty.ToString(),
-        theme = state.CurrentTheme.ToString()
+        theme = state.CurrentTheme.ToString(),
+        playerVotes = state.PlayerVotes,
+        aiVotes = state.AiVotes
     });
 });
 
