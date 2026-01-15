@@ -1,0 +1,509 @@
+/* ============================================================================
+   GLOBAL STYLES
+   ============================================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    line-height: 1.6;
+}
+
+/* ============================================================================
+   THEME COLORS - PINK (DEFAULT)
+   ============================================================================ */
+
+body.theme-pink {
+    background: linear-gradient(135deg, #ffc0d9 0%, #ff69b4 50%, #ffb6c1 100%);
+    color: #1a1a1a;
+}
+
+body.theme-pink .top-bar {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 8px rgba(255, 105, 180, 0.15);
+}
+
+body.theme-pink .top-bar h1 {
+    color: #d91e63;
+}
+
+body.theme-pink .container {
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 8px 32px rgba(255, 105, 180, 0.15);
+    color: #1a1a1a;
+}
+
+body.theme-pink .section-label {
+    color: #d91e63;
+}
+
+body.theme-pink .choice-btn {
+    background: linear-gradient(135deg, #fff5f8 0%, #ffe0ec 100%);
+    color: #1a1a1a;
+    border: 2px solid #ffb6c1;
+}
+
+body.theme-pink .choice-btn:hover {
+    background: linear-gradient(135deg, #ffebf0 0%, #ffd4e5 100%);
+    border-color: #ff69b4;
+    box-shadow: 0 8px 24px rgba(255, 105, 180, 0.2);
+}
+
+body.theme-pink .choice-btn.active {
+    background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+    color: #fff;
+    border-color: #ff1493;
+    box-shadow: 0 8px 24px rgba(255, 20, 147, 0.3);
+}
+
+body.theme-pink .difficulty-btn {
+    background: #fff;
+    color: #d91e63;
+    border: 2px solid #ffb6c1;
+}
+
+body.theme-pink .difficulty-btn:hover {
+    background: #ffe0ec;
+    border-color: #ff69b4;
+}
+
+body.theme-pink .difficulty-btn.active {
+    background: #ff69b4;
+    color: #fff;
+    border-color: #ff1493;
+}
+
+body.theme-pink .theme-toggle-btn {
+    background: #ff69b4;
+    color: #fff;
+}
+
+body.theme-pink .theme-toggle-btn:hover {
+    background: #ff1493;
+}
+
+body.theme-pink .reset-btn {
+    background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+    color: #fff;
+}
+
+body.theme-pink .reset-btn:hover {
+    background: linear-gradient(135deg, #ff1493 0%, #c2185b 100%);
+}
+
+body.theme-pink .result-win {
+    background: linear-gradient(135deg, #c8e6c9 0%, #81c784 100%);
+    color: #1b5e20;
+}
+
+body.theme-pink .result-lose {
+    background: linear-gradient(135deg, #ffcccc 0%, #ef5350 100%);
+    color: #b71c1c;
+}
+
+body.theme-pink .result-draw {
+    background: linear-gradient(135deg, #cfd8ff 0%, #3f51b5 100%);
+    color: #1a237e;
+}
+
+/* ============================================================================
+   THEME COLORS - BLUE (DARKER)
+   ============================================================================ */
+
+body.theme-blue {
+    background: linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%);
+    color: #e3f2fd;
+}
+
+body.theme-blue .top-bar {
+    background: rgba(15, 32, 90, 0.95);
+    box-shadow: 0 2px 8px rgba(13, 71, 161, 0.3);
+}
+
+body.theme-blue .top-bar h1 {
+    color: #64b5f6;
+}
+
+body.theme-blue .container {
+    background: rgba(25, 45, 110, 0.98);
+    box-shadow: 0 8px 32px rgba(13, 71, 161, 0.3);
+    color: #e3f2fd;
+}
+
+body.theme-blue .section-label {
+    color: #64b5f6;
+}
+
+body.theme-blue .choice-btn {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #e3f2fd;
+    border: 2px solid #42a5f5;
+}
+
+body.theme-blue .choice-btn:hover {
+    background: linear-gradient(135deg, #254a84 0%, #2f63ba 100%);
+    border-color: #64b5f6;
+    box-shadow: 0 8px 24px rgba(66, 165, 245, 0.25);
+}
+
+body.theme-blue .choice-btn.active {
+    background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+    color: #fff;
+    border-color: #1565c0;
+    box-shadow: 0 8px 24px rgba(30, 136, 229, 0.4);
+}
+
+body.theme-blue .difficulty-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #64b5f6;
+    border: 2px solid #42a5f5;
+}
+
+body.theme-blue .difficulty-btn:hover {
+    background: rgba(66, 165, 245, 0.2);
+    border-color: #64b5f6;
+}
+
+body.theme-blue .difficulty-btn.active {
+    background: #42a5f5;
+    color: #0d47a1;
+    border-color: #1e88e5;
+}
+
+body.theme-blue .theme-toggle-btn {
+    background: #42a5f5;
+    color: #0d47a1;
+}
+
+body.theme-blue .theme-toggle-btn:hover {
+    background: #1e88e5;
+}
+
+body.theme-blue .reset-btn {
+    background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+    color: #fff;
+}
+
+body.theme-blue .reset-btn:hover {
+    background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+}
+
+body.theme-blue .result-win {
+    background: linear-gradient(135deg, #a5d6a7 0%, #66bb6a 100%);
+    color: #1b5e20;
+}
+
+body.theme-blue .result-lose {
+    background: linear-gradient(135deg, #ef9a9a 0%, #e53935 100%);
+    color: #b71c1c;
+}
+
+body.theme-blue .result-draw {
+    background: linear-gradient(135deg, #9fa8da 0%, #3949ab 100%);
+    color: #e3f2fd;
+}
+
+/* ============================================================================
+   LAYOUT
+   ============================================================================ */
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-align: center;
+    flex: 1;
+}
+
+.container {
+    max-width: 650px;
+    margin: 0 auto;
+    padding: 2rem;
+    border-radius: 12px;
+}
+
+.section {
+    margin-bottom: 2.5rem;
+}
+
+.section-label {
+    display: block;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* ============================================================================
+   THEME TOGGLE BUTTON
+   ============================================================================ */
+
+.theme-toggle-btn {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================================================
+   DIFFICULTY SELECTOR
+   ============================================================================ */
+
+.difficulty-toggle {
+    display: flex;
+    gap: 1rem;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+.difficulty-btn {
+    flex: 1;
+    padding: 0.8rem 1.5rem;
+    border: 2px solid;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.difficulty-btn:hover {
+    transform: translateY(-2px);
+}
+
+.difficulty-section {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================================================
+   GAME CONTROLS
+   ============================================================================ */
+
+.choices {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.choice-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    padding: 1.5rem;
+    border: 2px solid;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.choice-btn:hover {
+    transform: translateY(-4px);
+}
+
+.choice-emoji {
+    font-size: 3rem;
+    line-height: 1;
+}
+
+.choice-label {
+    font-size: 0.9rem;
+}
+
+/* ============================================================================
+   RESULT DISPLAY
+   ============================================================================ */
+
+.result-section {
+    padding: 1.5rem;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.result-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+.round-choice {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.round-label {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.round-emoji {
+    font-size: 2.5rem;
+}
+
+.vs-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+    opacity: 0.6;
+}
+
+.result-message {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 1rem;
+    border-radius: 8px;
+    animation: slideIn 0.3s ease;
+}
+
+.result-win, .result-lose, .result-draw {
+    display: inline-block;
+    width: 100%;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================================
+   SCOREBOARD
+   ============================================================================ */
+
+.scoreboard {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+}
+
+.score-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.score-label {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.score-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* ============================================================================
+   RESET BUTTON
+   ============================================================================ */
+
+.reset-btn {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.reset-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+@media (max-width: 600px) {
+    .top-bar {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .page-title {
+        font-size: 1.4rem;
+    }
+
+    .container {
+        padding: 1.5rem;
+        margin: 0 1rem;
+    }
+
+    .choices {
+        grid-template-columns: 1fr;
+    }
+
+    .scoreboard {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .result-container {
+        flex-direction: column;
+    }
+
+    .vs-text {
+        transform: rotate(90deg);
+        margin: 0.5rem 0;
+    }
+}
+
+@media (max-width: 400px) {
+    .page-title {
+        font-size: 1.1rem;
+    }
+
+    .choice-emoji {
+        font-size: 2.5rem;
+    }
+
+    .round-emoji {
+        font-size: 2rem;
+    }
+}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kivi-Paperi-Sakset vs AI</title>
+    <link rel="stylesheet" href="site.css?v=2" />
+</head>
+<body class="theme-pink">
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Vaihda teemaa">
+            🌙 Vaihda siniseen
+        </button>
+        <h1 class="page-title">Kivi–Paperi–Sakset vs AI</h1>
+        <div style="width: 100px;"></div> <!-- Spacer for alignment -->
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Difficulty Selector -->
+        <section class="section difficulty-section">
+            <label class="section-label">Vaikeusaste:</label>
+            <div class="difficulty-toggle">
+                <button class="difficulty-btn active" data-difficulty="Normal" id="btn-normal">
+                    Helppo
+                </button>
+                <button class="difficulty-btn" data-difficulty="Hard" id="btn-hard">
+                    Vaikea
+                </button>
+            </div>
+        </section>
+
+        <!-- Game Controls -->
+        <section class="section game-controls-section">
+            <label class="section-label">Valitse siirtosi:</label>
+            <div class="choices">
+                <button class="choice-btn" data-choice="Rock" id="choice-rock" aria-label="Kivi">
+                    <span class="choice-emoji">✊</span>
+                    <span class="choice-label">Kivi</span>
+                </button>
+                <button class="choice-btn" data-choice="Paper" id="choice-paper" aria-label="Paperi">
+                    <span class="choice-emoji">✋</span>
+                    <span class="choice-label">Paperi</span>
+                </button>
+                <button class="choice-btn" data-choice="Scissors" id="choice-scissors" aria-label="Sakset">
+                    <span class="choice-emoji">✌️</span>
+                    <span class="choice-label">Sakset</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Round Result Display -->
+        <section class="section result-section" id="result-section" style="display: none;">
+            <div class="result-container">
+                <div class="round-choice">
+                    <span class="round-label">Sinä valitsit:</span>
+                    <span class="round-emoji" id="player-choice-emoji">✊</span>
+                </div>
+                <div class="vs-text">VS</div>
+                <div class="round-choice">
+                    <span class="round-label">AI valitsi:</span>
+                    <span class="round-emoji" id="ai-choice-emoji">✊</span>
+                </div>
+            </div>
+            <div class="result-message" id="result-message">
+                <!-- Result text inserted here -->
+            </div>
+        </section>
+
+        <!-- Scoreboard -->
+        <section class="section scoreboard-section">
+            <label class="section-label">Tilastot:</label>
+            <div class="scoreboard">
+                <div class="score-item">
+                    <span class="score-label">Kierroksia pelattu:</span>
+                    <span class="score-value" id="score-rounds">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">Sinun voittosi:</span>
+                    <span class="score-value" id="score-wins">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">AI voittoja:</span>
+                    <span class="score-value" id="score-ai-wins">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">Tasapelejä:</span>
+                    <span class="score-value" id="score-draws">0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reset Button -->
+        <section class="section reset-section">
+            <button id="reset-btn" class="reset-btn">
+                Nollaa peli
+            </button>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
