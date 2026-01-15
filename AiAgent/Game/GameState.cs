@@ -1,13 +1,15 @@
 namespace RockPaperScissors.Game;
 
 /// <summary>
-/// Enum for the three possible game choices.
+/// Enum for the five possible game choices (Rock-Paper-Scissors-Lizard-Spock).
 /// </summary>
 public enum Choice
 {
     Rock,
     Paper,
-    Scissors
+    Scissors,
+    Lizard,
+    Spock
 }
 
 /// <summary>
@@ -26,7 +28,8 @@ public enum RoundResult
 public enum Difficulty
 {
     Normal,
-    Hard
+    Hard,
+    Nörtti
 }
 
 /// <summary>

@@ -15,16 +15,24 @@ public class GameLogic
         if (playerChoice == aiChoice)
             return RoundResult.Draw;
 
-        // Rock beats Scissors
-        if (playerChoice == Choice.Rock && aiChoice == Choice.Scissors)
+        // Rock beats Scissors and Lizard
+        if (playerChoice == Choice.Rock && (aiChoice == Choice.Scissors || aiChoice == Choice.Lizard))
             return RoundResult.Win;
 
-        // Scissors beats Paper
-        if (playerChoice == Choice.Scissors && aiChoice == Choice.Paper)
+        // Scissors beats Paper and Lizard
+        if (playerChoice == Choice.Scissors && (aiChoice == Choice.Paper || aiChoice == Choice.Lizard))
             return RoundResult.Win;
 
-        // Paper beats Rock
-        if (playerChoice == Choice.Paper && aiChoice == Choice.Rock)
+        // Paper beats Rock and Spock
+        if (playerChoice == Choice.Paper && (aiChoice == Choice.Rock || aiChoice == Choice.Spock))
+            return RoundResult.Win;
+
+        // Lizard beats Paper and Spock
+        if (playerChoice == Choice.Lizard && (aiChoice == Choice.Paper || aiChoice == Choice.Spock))
+            return RoundResult.Win;
+
+        // Spock beats Scissors and Rock
+        if (playerChoice == Choice.Spock && (aiChoice == Choice.Scissors || aiChoice == Choice.Rock))
             return RoundResult.Win;
 
         return RoundResult.Lose;
@@ -34,6 +42,7 @@ public class GameLogic
     /// Generates AI move based on the current difficulty level.
     /// Normal: Biased toward repeating its previous move (60% repeat, 40% random).
     /// Hard: Uses frequency-based prediction of player's most common move and counters it.
+    /// Nörtti: Adaptive strategy with balanced randomness and prediction.
     /// </summary>
     public Choice GetAiMove(GameState state)
     {
@@ -41,6 +50,7 @@ public class GameLogic
         {
             Difficulty.Normal => GetAiMoveNormal(state),
             Difficulty.Hard => GetAiMoveHard(state),
+            Difficulty.Nörtti => GetAiMoveBotanica(state),
             _ => GetRandomChoice()
         };
     }
@@ -61,8 +71,9 @@ public class GameLogic
             return state.LastAiChoice.Value;
 
         // 40% chance: pick a random choice different from last
-        var choices = GetOtherChoices(state.LastAiChoice.Value);
-        return choices[_random.Next(choices.Count)];
+        var allChoices = new List<Choice> { Choice.Rock, Choice.Paper, Choice.Scissors, Choice.Lizard, Choice.Spock };
+        var otherChoices = allChoices.Where(c => c != state.LastAiChoice.Value).ToList();
+        return otherChoices[_random.Next(otherChoices.Count)];
     }
 
     /// <summary>
@@ -108,26 +119,50 @@ public class GameLogic
     }
 
     /// <summary>
+    /// Botanica difficulty: Adaptive AI with mixed strategy.
+    /// Uses player history, adjusts strategy based on performance, and incorporates randomness.
+    /// </summary>
+    private Choice GetAiMoveBotanica(GameState state)
+    {
+        // On first few rounds, choose randomly
+        if (state.PlayerMoveHistory.Count < 3)
+            return GetRandomChoice();
+
+        // Count frequency of each choice
+        var frequencies = new Dictionary<Choice, int>();
+        foreach (Choice choice in Enum.GetValues(typeof(Choice)))
+        {
+            frequencies[choice] = state.PlayerMoveHistory.Count(c => c == choice);
+        }
+
+        // Find the most frequent choice
+        var mostFrequent = frequencies.OrderByDescending(x => x.Value).First().Key;
+        var maxCount = frequencies[mostFrequent];
+
+        // 70% chance to use counter strategy, 30% chance for randomness to keep player guessing
+        if (_random.Next(100) < 70 && maxCount > 0)
+        {
+            // Counter the most frequent player move
+            return GetCounterChoice(mostFrequent);
+        }
+
+        return GetRandomChoice();
+    }
+
+    /// <summary>
     /// Returns the choice that beats the given choice.
     /// </summary>
     private Choice GetCounterChoice(Choice choice)
     {
         return choice switch
         {
-            Choice.Rock => Choice.Paper,      // Paper beats Rock
-            Choice.Paper => Choice.Scissors,   // Scissors beats Paper
-            Choice.Scissors => Choice.Rock,    // Rock beats Scissors
+            Choice.Rock => Choice.Paper,           // Paper beats Rock
+            Choice.Paper => Choice.Scissors,        // Scissors beats Paper
+            Choice.Scissors => Choice.Rock,         // Rock beats Scissors
+            Choice.Lizard => Choice.Rock,           // Rock crushes Lizard
+            Choice.Spock => Choice.Lizard,          // Lizard poisons Spock
             _ => GetRandomChoice()
         };
-    }
-
-    /// <summary>
-    /// Returns a list of choices that are different from the given choice.
-    /// </summary>
-    private List<Choice> GetOtherChoices(Choice choice)
-    {
-        var all = new[] { Choice.Rock, Choice.Paper, Choice.Scissors };
-        return all.Where(c => c != choice).ToList();
     }
 
     /// <summary>
@@ -135,7 +170,7 @@ public class GameLogic
     /// </summary>
     private Choice GetRandomChoice()
     {
-        var choices = new[] { Choice.Rock, Choice.Paper, Choice.Scissors };
+        var choices = new[] { Choice.Rock, Choice.Paper, Choice.Scissors, Choice.Lizard, Choice.Spock };
         return choices[_random.Next(choices.Length)];
     }
 
@@ -149,6 +184,8 @@ public class GameLogic
             Choice.Rock => "✊",
             Choice.Paper => "✋",
             Choice.Scissors => "✌️",
+            Choice.Lizard => "🦎",
+            Choice.Spock => "🖖",
             _ => "?"
         };
     }

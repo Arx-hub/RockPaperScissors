@@ -7,7 +7,9 @@
 const CHOICE_EMOJI = {
     'Rock': '✊',
     'Paper': '✋',
-    'Scissors': '✌️'
+    'Scissors': '✌️',
+    'Lizard': '🦎',
+    'Spock': '🖖'
 };
 
 /**
@@ -536,6 +538,18 @@ function updateDifficultyUI(difficulty) {
             btn.classList.add('active');
         }
     });
+    
+    // Hide Lizard and Spock for Normal (Helppo) and Hard (Vaikea) difficulties
+    const lizardBtn = document.getElementById('choice-lizard');
+    const spockBtn = document.getElementById('choice-spock');
+    
+    if (difficulty === 'Normal' || difficulty === 'Hard') {
+        if (lizardBtn) lizardBtn.style.display = 'none';
+        if (spockBtn) spockBtn.style.display = 'none';
+    } else {
+        if (lizardBtn) lizardBtn.style.display = 'block';
+        if (spockBtn) spockBtn.style.display = 'block';
+    }
 }
 
 /**
@@ -649,3 +663,5 @@ function clearPlayerSelection() {
         btn.classList.remove('active');
     });
 }
+
+
