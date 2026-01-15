@@ -12,7 +12,6 @@ const CHOICE_EMOJI = {
 
 // Initialize game on page load
 document.addEventListener('DOMContentLoaded', () => {
-    document.body.innerHTML = '<h1>DEBUG: DOMContentLoaded fired!</h1>' + document.body.innerHTML;
     initializeGame();
 });
 
@@ -305,25 +304,4 @@ function clearPlayerSelection() {
     });
 }
 
-// Theme toggle and initialization
-function toggleTheme(){
-  const body = document.body;
-  const current = body.getAttribute('data-theme') || 'light';
-  const next = current === 'dark' ? 'light' : 'dark';
-  body.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
-  updateThemeButton(next);
-}
 
-function updateThemeButton(theme){
-  const btn = document.getElementById('theme-toggle');
-  if(!btn) return;
-  btn.textContent = theme === 'dark' ? '☀️' : '🌙';
-}
-
-// Apply saved theme on load
-document.addEventListener('DOMContentLoaded', ()=>{
-  const saved = localStorage.getItem('theme') || 'light';
-  document.body.setAttribute('data-theme', saved);
-  updateThemeButton(saved);
-});
