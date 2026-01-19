@@ -51,7 +51,7 @@ public class GameLogic
             Difficulty.Normal => GetAiMoveNormal(state),
             Difficulty.Hard => GetAiMoveHard(state),
             Difficulty.Nörtti => GetAiMoveBotanica(state),
-            _ => GetRandomChoice()
+            _ => GetRandomChoice(false)
         };
     }
 
@@ -64,14 +64,14 @@ public class GameLogic
     {
         // On first round, choose randomly
         if (state.LastAiChoice == null)
-            return GetRandomChoice();
+            return GetRandomChoice(false);
 
         // 60% chance to repeat last choice
         if (_random.Next(100) < 60)
             return state.LastAiChoice.Value;
 
         // 40% chance: pick a random choice different from last
-        var allChoices = new List<Choice> { Choice.Rock, Choice.Paper, Choice.Scissors, Choice.Lizard, Choice.Spock };
+        var allChoices = new List<Choice> { Choice.Rock, Choice.Paper, Choice.Scissors };
         var otherChoices = allChoices.Where(c => c != state.LastAiChoice.Value).ToList();
         return otherChoices[_random.Next(otherChoices.Count)];
     }
@@ -86,36 +86,33 @@ public class GameLogic
     {
         // If player has no history, choose randomly
         if (state.PlayerMoveHistory.Count == 0)
-            return GetRandomChoice();
+            return GetRandomChoice(false);
 
-        // Count frequency of each choice
+        // Count frequency of each RPS choice (Hard mode only considers R/P/S)
         var rockCount = state.PlayerMoveHistory.Count(c => c == Choice.Rock);
         var paperCount = state.PlayerMoveHistory.Count(c => c == Choice.Paper);
         var scissorsCount = state.PlayerMoveHistory.Count(c => c == Choice.Scissors);
 
-        // Find the most frequent choice
+        // Find the highest frequency
         var maxCount = Math.Max(rockCount, Math.Max(paperCount, scissorsCount));
 
-        // If there's a clear leader, predict and counter it
-        if (maxCount > 0 && (rockCount == maxCount || paperCount == maxCount || scissorsCount == maxCount))
-        {
-            Choice predictedChoice;
-            
-            if (rockCount == maxCount && rockCount > paperCount && rockCount > scissorsCount)
-                predictedChoice = Choice.Rock;
-            else if (paperCount == maxCount && paperCount > rockCount && paperCount > scissorsCount)
-                predictedChoice = Choice.Paper;
-            else if (scissorsCount == maxCount && scissorsCount > rockCount && scissorsCount > paperCount)
-                predictedChoice = Choice.Scissors;
-            else
-                // If counts are equal, fall back to random
-                return GetRandomChoice();
+        if (maxCount <= 0)
+            return GetRandomChoice(false);
 
-            // Counter the predicted choice
+        // Build list of top choices (handles ties)
+        var topChoices = new List<Choice>();
+        if (rockCount == maxCount) topChoices.Add(Choice.Rock);
+        if (paperCount == maxCount) topChoices.Add(Choice.Paper);
+        if (scissorsCount == maxCount) topChoices.Add(Choice.Scissors);
+
+        // Pick a predicted player move (random among ties)
+        var predictedChoice = topChoices[_random.Next(topChoices.Count)];
+
+        // Probabilistic countering: 90% pick the counter, 10% pick a random RPS to add unpredictability
+        if (_random.Next(100) < 90)
             return GetCounterChoice(predictedChoice);
-        }
 
-        return GetRandomChoice();
+        return GetRandomChoice(false);
     }
 
     /// <summary>
@@ -126,7 +123,7 @@ public class GameLogic
     {
         // On first few rounds, choose randomly
         if (state.PlayerMoveHistory.Count < 3)
-            return GetRandomChoice();
+            return GetRandomChoice(true);
 
         // Count frequency of each choice
         var frequencies = new Dictionary<Choice, int>();
@@ -146,7 +143,7 @@ public class GameLogic
             return GetCounterChoice(mostFrequent);
         }
 
-        return GetRandomChoice();
+        return GetRandomChoice(true);
     }
 
     /// <summary>
@@ -161,17 +158,23 @@ public class GameLogic
             Choice.Scissors => Choice.Rock,         // Rock beats Scissors
             Choice.Lizard => Choice.Rock,           // Rock crushes Lizard
             Choice.Spock => Choice.Lizard,          // Lizard poisons Spock
-            _ => GetRandomChoice()
+            _ => GetRandomChoice(true)
         };
     }
 
     /// <summary>
     /// Returns a random choice.
     /// </summary>
-    private Choice GetRandomChoice()
+    private Choice GetRandomChoice(bool includeLizardSpock = false)
     {
-        var choices = new[] { Choice.Rock, Choice.Paper, Choice.Scissors, Choice.Lizard, Choice.Spock };
-        return choices[_random.Next(choices.Length)];
+        if (includeLizardSpock)
+        {
+            var choices = new[] { Choice.Rock, Choice.Paper, Choice.Scissors, Choice.Lizard, Choice.Spock };
+            return choices[_random.Next(choices.Length)];
+        }
+
+        var rps = new[] { Choice.Rock, Choice.Paper, Choice.Scissors };
+        return rps[_random.Next(rps.Length)];
     }
 
     /// <summary>
